@@ -1,0 +1,19 @@
+{
+  "name": "auth",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "config": {
+    "name": "Auth",
+    "mem": 256,
+    "regions": [
+      "europe-west1"
+    ],
+    "entryPoint": "auth"
+  },
+  "dependencies": {
+    "bcrypt": "3.0.8",
+    "jsonwebtoken": "^8.5.1",
+    "node-fetch": "^2.6.1"
+  }
+}

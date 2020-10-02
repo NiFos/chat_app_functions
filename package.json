@@ -1,0 +1,26 @@
+{
+  "name": "chat_app_functions",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:NiFos/chat_app_functions.git",
+  "author": "Vlad <vlad.nifos@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "babel": "babel-node index.ts --extensions \".ts\"",
+    "dev": "nodemon --config nodemon.json",
+    "deploy": "node --harmony ./deploy.js"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.6",
+    "@babel/node": "^7.10.5",
+    "@babel/plugin-transform-runtime": "^7.11.5",
+    "@babel/preset-env": "^7.11.5",
+    "@babel/preset-typescript": "^7.10.4",
+    "@types/express": "^4.17.8",
+    "eslint": "^7.10.0",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.4",
+    "typescript": "^4.0.3"
+  },
+  "dependencies": {}
+}
