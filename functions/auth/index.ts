@@ -7,7 +7,6 @@ export async function auth(req: Request, res: Response): Promise<Response> {
   const { hasura_action_secret } = req.headers;
   const { action_secret } = process.env;
   if (hasura_action_secret !== action_secret) return res.status(401).send("");
-  res.cookie("__session", "refreshToken");
   switch (type) {
     case "password":
       return passwordSignIn(req, res);
