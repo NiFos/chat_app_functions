@@ -12,9 +12,11 @@ interface Itokens {
 export async function genTokens(payload: object): Promise<Itokens> {
   const accessToken = jwt.sign({ ...payload }, secret, {
     expiresIn: accessExpiration,
+    algorithm: "HS256",
   });
   const refreshToken = jwt.sign({ ...payload }, secret, {
     expiresIn: refreshExpiration,
+    algorithm: "HS256",
   });
   return {
     accessToken,
@@ -32,4 +34,14 @@ export function setRefreshToken(res: Response, refreshToken: string): void {
   res.set("Access-Control-Allow-Origin", hasura_url);
   res.set("Access-Control-Allow-Credentials", "true");
   res.cookie("__session", refreshToken);
+}
+
+export function genPayload(userId: string): object {
+  return {
+    "https://hasura.io/jwt/claims": {
+      "x-hasura-allowed-roles": ["user"],
+      "x-hasura-default-role": "user",
+      "x-hasura-user-id": userId,
+    },
+  };
 }

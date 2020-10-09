@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { isUserExist, regUser, insertRefreshToken } from "../utils/db";
-import { genTokens, setRefreshToken } from "../utils/jwt";
+import { genPayload, genTokens, setRefreshToken } from "../utils/jwt";
 export async function registration(
   req: Request,
   res: Response
@@ -11,7 +11,8 @@ export async function registration(
     if (userExist !== "") return res.status(400).send("");
     const userId = await regUser(data, req.headers);
     if (userId === "") res.status(400).send("");
-    const { accessToken, refreshToken } = await genTokens({ userId });
+    const payload = genPayload(userId);
+    const { accessToken, refreshToken } = await genTokens(payload);
     const tokenInDb = await insertRefreshToken(req, userId, refreshToken);
     if (!tokenInDb) return res.status(400).send("");
     setRefreshToken(res, refreshToken);

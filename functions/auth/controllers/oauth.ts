@@ -3,7 +3,7 @@ import { oauthGoogle } from "../utils/oauth_google";
 import generator from "generate-password";
 import { hashPassword } from "../utils/hash";
 import { insertRefreshToken, isUserExist, regUser } from "../utils/db";
-import { genTokens, setRefreshToken } from "../utils/jwt";
+import { genPayload, genTokens, setRefreshToken } from "../utils/jwt";
 
 export async function getOauthUrl(
   req: Request,
@@ -42,7 +42,8 @@ export async function oauth(req: Request, res: Response): Promise<any> {
     userId = await regUser(data, req.headers);
     if (userId === "") res.redirect(production_url + `/auth?error=true`);
   }
-  const { accessToken, refreshToken } = await genTokens({ userId });
+  const payload = genPayload(userId);
+  const { accessToken, refreshToken } = await genTokens(payload);
   const tokenInDb = await insertRefreshToken(req, userId, refreshToken);
   if (!tokenInDb) return res.redirect(production_url + `/auth?error=true`);
   setRefreshToken(res, refreshToken);
