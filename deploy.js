@@ -16,7 +16,7 @@ fs.readdirSync(lib).forEach(function (mod) {
 
   // Deploy for each region in config file
   packageFile.config.regions.forEach((region) => {
-    const execStr = `gcloud functions deploy ${packageFile.config.name} --region ${region} --entry-point ${packageFile.config.entryPoint} --runtime nodejs8 --trigger-http --allow-unauthenticated --memory ${packageFile.config.mem}`;
+    const execStr = `gcloud functions deploy ${packageFile.config.name} --region ${region} --entry-point ${packageFile.config.entryPoint} --runtime nodejs10 --trigger-http --allow-unauthenticated --memory ${packageFile.config.mem}`;
 
     console.log(`Start deploy ${packageFile.config.name} to ${region}`);
     cp.execSync(execStr, { env: process.env, cwd: libPath, stdio: "inherit" });
