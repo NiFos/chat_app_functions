@@ -6,19 +6,30 @@ export async function refresh(req: Request, res: Response): Promise<Response> {
     const token = req.cookies.__session;
     const userId = await userHasRefreshToken(req, token);
 
-    if (userId === "") res.status(400).send("");
+    if (userId === "")
+      return res.status(200).send({
+        accessToken: "",
+      });
     const payload = genPayload(userId);
     const { accessToken, refreshToken } = await genTokens(payload);
-    const tokenInDb = await updateRefreshToken(req, userId, refreshToken);
+    const tokenInDb = await updateRefreshToken(
+      req,
+      userId,
+      token,
+      refreshToken
+    );
 
-    if (!tokenInDb) return res.status(400).send("");
+    if (!tokenInDb)
+      return res.status(200).send({
+        accessToken: "",
+      });
     setRefreshToken(res, refreshToken);
     return res.status(200).send({
       accessToken,
     });
   } catch (error) {
-    console.log(error);
-
-    return res.status(400).send("");
+    return res.status(200).send({
+      accessToken: "",
+    });
   }
 }

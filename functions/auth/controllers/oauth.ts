@@ -25,7 +25,6 @@ export async function oauth(req: Request, res: Response): Promise<any> {
     false,
     req.headers
   );
-  console.log(userExist);
 
   let userId = userExist;
   if (userId === "") {
@@ -40,12 +39,13 @@ export async function oauth(req: Request, res: Response): Promise<any> {
       username: user.data.name,
     };
     userId = await regUser(data, req.headers);
-    if (userId === "") res.redirect(production_url + `/auth?error=true`);
+    if (userId === "")
+      return res.redirect(production_url + `/auth?error1=true`);
   }
   const payload = genPayload(userId);
   const { accessToken, refreshToken } = await genTokens(payload);
   const tokenInDb = await insertRefreshToken(req, userId, refreshToken);
-  if (!tokenInDb) return res.redirect(production_url + `/auth?error=true`);
+  if (!tokenInDb) return res.redirect(production_url + `/auth?error2=true`);
   setRefreshToken(res, refreshToken);
   return res.redirect(production_url + `/auth?accessToken=${accessToken}`);
 }

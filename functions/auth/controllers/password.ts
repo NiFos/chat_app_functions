@@ -8,16 +8,24 @@ export async function passwordSignIn(
   try {
     const data = req.body.input.data;
     const userId = await isUserExist(data, true, req.headers);
-    if (userId === "") return res.status(400).send("");
+    if (userId === "")
+      return res.status(200).send({
+        accessToken: "",
+      });
     const payload = genPayload(userId);
     const { accessToken, refreshToken } = await genTokens(payload);
     const tokenInDb = await insertRefreshToken(req, userId, refreshToken);
-    if (!tokenInDb) return res.status(400).send("");
+    if (!tokenInDb)
+      return res.status(200).send({
+        accessToken: "",
+      });
     setRefreshToken(res, refreshToken);
     return res.status(200).send({
       accessToken,
     });
   } catch (error) {
-    return res.status(400).send("");
+    return res.status(200).send({
+      accessToken: "",
+    });
   }
 }
