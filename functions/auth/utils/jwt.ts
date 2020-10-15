@@ -29,11 +29,21 @@ export async function getPayload(token: string): Promise<any> {
   return decoded;
 }
 
+export async function getUserId(token: string): Promise<string> {
+  const decoded = jwt.verify(token, secret) as any;
+  return decoded["https://hasura.io/jwt/claims"]["x-hasura-user-id"];
+}
+
 const hasura_url = process.env.hasura_url || "";
 export function setRefreshToken(res: Response, refreshToken: string): void {
   res.set("Access-Control-Allow-Origin", hasura_url);
   res.set("Access-Control-Allow-Credentials", "true");
-  res.cookie("__session", refreshToken);
+  res.cookie("__session", refreshToken, {
+    httpOnly: true,
+    sameSite: true,
+    secure: true,
+    maxAge: 31556926 * 1000,
+  });
 }
 
 export function genPayload(userId: string): object {

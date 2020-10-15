@@ -1,17 +1,21 @@
 import fetch from "node-fetch";
+import https from "https";
 import { Request } from "express";
 import { comparePassword, hashPassword } from "./hash";
 import { getPayload } from "./jwt";
 
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 const url = process.env.hasura_url;
+const admin_secret = process.env.admin_secret || "";
 const execute = async (operation: string, variables: any, reqHeaders: any) => {
   const response = await fetch(new URL("/v1/graphql", url), {
     method: "POST",
-    headers: reqHeaders || {},
+    headers: { ...reqHeaders, "x-hasura-admin-secret": admin_secret } || {},
     body: JSON.stringify({
       query: operation,
       variables,
     }),
+    agent: process.env.NODE_ENV === "production" ? httpsAgent : undefined,
   });
   return await response.json();
 };
@@ -130,8 +134,8 @@ export async function insertRefreshToken(
 }
 
 const hasura_token_update_operation = `
-  mutation ($user_id: uuid!, $token: String!) {
-    update_tokens(where: {user_id: {_eq: $user_id}, token: {_eq: $token}}, _set: {token: $token}) {
+  mutation ($user_id: uuid!, $token: String!, $newToken: String!) {
+    update_tokens(where: {user_id: {_eq: $user_id}, token: {_eq: $token}}, _set: {token: $newToken}) {
       returning {
         user_id
       }
@@ -142,12 +146,13 @@ const hasura_token_update_operation = `
 export async function updateRefreshToken(
   req: Request,
   userId: string,
-  token: string
+  token: string,
+  newToken: string
 ): Promise<boolean> {
   try {
     const { data, errors } = await execute(
       hasura_token_update_operation,
-      { user_id: userId, token },
+      { user_id: userId, token, newToken },
       req.headers
     );
     if (errors) {
@@ -181,17 +186,17 @@ export async function userHasRefreshToken(
       { token },
       req.headers
     );
-    console.log("uhrt", data);
 
     if (errors) {
       return "";
     }
     if (data.tokens.length <= 0) return "";
     const payload = await getPayload(token);
-    if (payload === {}) return "";
-    console.log("payload", payload);
+    if (JSON.stringify(payload) === JSON.stringify({})) {
+      return "";
+    }
 
-    return payload.userId;
+    return payload["https://hasura.io/jwt/claims"]["x-hasura-user-id"];
   } catch (error) {
     console.log(error);
 
