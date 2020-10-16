@@ -15,7 +15,11 @@ const execute = async (operation: string, variables: any, reqHeaders: any) => {
       query: operation,
       variables,
     }),
-    agent: process.env.NODE_ENV === "production" ? httpsAgent : undefined,
+    agent:
+      process.env.NODE_ENV === "production" ||
+      process.env.NODE_ENV === "staging"
+        ? httpsAgent
+        : undefined,
   });
   return await response.json();
 };
@@ -84,6 +88,8 @@ export async function regUser(data: any, reqHeaders: object): Promise<string> {
       { username },
       reqHeaders
     );
+    console.log("insertUserInfo.errors", insertUserInfo.errors);
+
     if (insertUserInfo.errors) {
       return "";
     }
@@ -96,11 +102,15 @@ export async function regUser(data: any, reqHeaders: object): Promise<string> {
       },
       reqHeaders
     );
+    console.log("insertUserCredentials.errors", insertUserCredentials.errors);
+
     if (insertUserCredentials.errors) {
       return "";
     }
     return insertUserCredentials.data.insert_user_credentials_one.user_id;
   } catch (error) {
+    console.log("error", error);
+
     return "";
   }
 }
